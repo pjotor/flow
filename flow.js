@@ -270,7 +270,7 @@ $(document).ready(function(){
 	});		
 
 	$(".del").live("click", function(){ 
-		if( !$(this).children("header, p").data("edited") ) {
+		if( !$(this).siblings("header, p").data("edited") ) {
 			$(this).parents("article.note").remove();
 		} else {
 			if ( confirm("For real real?") ) {

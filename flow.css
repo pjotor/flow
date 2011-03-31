@@ -147,7 +147,7 @@
 
 	.del {
 		position: absolute;
-		top: -2px;
+		top: 0;
 		left: 0;
 		height: 22px;
 		width: 20px;
