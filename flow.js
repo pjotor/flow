@@ -162,10 +162,6 @@ $(document).ready(function(){
 	var load = function(){
 		if(localStorage) {
 			data = JSON.parse(localStorage.getItem(storeKey + flowID));
-
-console.log(storeKey + flowID)
-
-console.log(data)
 			
 			if( data ) {
 				if( data.title ) $("#top").text(data.title);
