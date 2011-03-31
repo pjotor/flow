@@ -7,7 +7,8 @@ $(document).ready(function(){
 	/* Vars */
 	var colors = ["#FCF0AD","#E9E74A","#EE5E9F","#FFDD2A","#F59DB9","#F9A55B", "#FFF"];
 	var shadow = "0 5px 10px rgba(0,0,0,.03)";
-	var storeKey = "pjotor.com/time/flow";
+	var storeKey = "pjotor.com/time/flow/";
+	var hasID = (document.location.hash.substr(2).length != 0);
 	
 	// Note drag options and cloning functions
 	var Note = { 
@@ -53,6 +54,14 @@ $(document).ready(function(){
 	/* Utils */
 	// Zero padding. Defaiults to 2 chas.
 	var z = function(s,p,l){ p=p||"00"; l=l||2; return (p+s).substr(l*-1); }
+
+	// Generate flow ID
+	var newID = function(){ 
+		var id = Math.floor((Math.random()*1e5)).toString(16);
+		while( localStorage.getItem(storeKey + id) != null )
+			id = Math.floor((Math.random()*1e5)).toString(16); 
+		return id;
+	}
 		
 	// Returns an Object with formatted time strings ( date: "YYYY-MM-DD" && time: "HH:MM").
 	var getTime = function() {
@@ -141,7 +150,7 @@ $(document).ready(function(){
 	// Saves the object (stringified) to local store, key define abow
 	var save = function(){
 		if(localStorage) 
-			localStorage.setItem(storeKey, JSON.stringify({ 
+			localStorage.setItem(storeKey + flowID, JSON.stringify({ 
 				notes: collectNotes(), 
 				title: $("#top").text()
 			}) );
@@ -152,7 +161,11 @@ $(document).ready(function(){
 	// Loads and draws the notes, key defined abow
 	var load = function(){
 		if(localStorage) {
-			data = JSON.parse(localStorage.getItem(storeKey));
+			data = JSON.parse(localStorage.getItem(storeKey + flowID));
+
+console.log(storeKey + flowID)
+
+console.log(data)
 			
 			if( data ) {
 				if( data.title ) $("#top").text(data.title);
@@ -189,7 +202,7 @@ $(document).ready(function(){
 			}
 		} else alert("Local storage support missing.");
 	}		
-	
+
 	/* Enhansers */
 	// Sets some css and animation lazy
 	$(".del").css({ borderRadius: "28px" });
@@ -207,6 +220,13 @@ $(document).ready(function(){
 //	);
 	
 	$("article.note").draggable(Note);
+	
+	
+	// Get the supplied flow ID or generate one
+	var flowID = ( hasID ) ? document.location.hash.substr(2) : newID();
+
+	/* Setup URL */
+	if ( !hasID ) document.location.hash = "#!" + flowID;
 	
 	/* Buttons and Behavior*/
 	$("#top").dblclick(function(){
