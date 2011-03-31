@@ -22,7 +22,7 @@ $(document).ready(function(){
 	
 	// Note drag options and cloning functions
 	var Note = { 
-	 	stack: "article", 
+	 	stack: "section *", 
 		create: function(){
 							var css = $(this).hasClass("new") ?  
 							{	boxShadow: shadow, transform: "rotate(2.5deg)", 
@@ -280,6 +280,38 @@ $(document).ready(function(){
 		}
 	});
 
+	var droped = function(e) {
+		e.preventDefault();
+ 		var files = e.dataTransfer.files;
+		for ( var i in files ) {
+			if ( typeof files[i] == "object" && files[i].type.indexOf("image") > -1 ) {
+				reader = new FileReader();
+				reader.index = i;
+				reader.file = files[i];
+				reader.onload = function (evt) { 
+					var img = $("<img/>").attr("src", evt.target.result);
+					img.draggable(Note);
+					img.css({ boxShadow: "none" });
+					img.prependTo("section");
+					img.animate({ 
+						duration: 300, 
+						top: $(window).width()/2 + "px", 
+						left: $(window).height()/2 + "px" 
+					});
+				}
+				reader.readAsDataURL(files[i]);
+			}
+		}
+		return false
+	}
+	
+	var listen = function(e) { e.preventDefault(); return false; }
+	
+	document.addEventListener("drop", droped, true);
+	$(document).bind('dragenter', listen).bind('dragover', listen).bind('dragleave', listen);	
+
+
 	/* Load saved data*/
 	load();
 });
+
