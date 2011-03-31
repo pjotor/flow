@@ -212,7 +212,7 @@ $(document).ready(function(){
 
 	/* Enhansers */
 	// Sets some css and animation lazy
-	$(".del").css({ borderRadius: "28px" });
+//	$(".del").css({ borderRadius: "28px" });
 
 //	$("#tools .tab span").css({ transform: "rotate(-90deg)", borderRadius: "4px" });
 //	$("#tools").animate({ duration: 1500, left: "-12.5%" });
@@ -220,7 +220,9 @@ $(document).ready(function(){
 	$("article.note.new").css({	boxShadow: shadow, transform: "rotate(2.5deg)", 
 		top: "-65px", left: "-1px", position: "absolute" });
 	
-	$("#top").css({ boxShadow: shadow });
+	$("#top, #bottom").css({ boxShadow: "0 1px 0 rgba(255,255,255,.2), 0 0 1em rgba(0,0,0,.3) inset", borderRadius: "4px" });
+	
+//	$("body").css({ boxShadow: "0 0 10em rgba(0,0,0,.5) inset" });
 	/* UI stuff */
 //	$("#tools .tab").toggle(
 //	    function(){ $("#tools").animate({duration: 300,  left: "-1px"   }); },    
@@ -268,9 +270,13 @@ $(document).ready(function(){
 	});		
 
 	$(".del").live("click", function(){ 
-		if ( confirm("For real real?") ) {
-			$(this).parents("article.note").remove(); 
-			save();
+		if( !$(this).children("header, p").data("edited") ) {
+			$(this).parents("article.note").remove();
+		} else {
+			if ( confirm("For real real?") ) {
+				$(this).parents("article.note").remove(); 
+				save();
+			}
 		}
 	});
 
