@@ -1,0 +1,141 @@
+	#dashit {
+		position: fixed;
+		top: 6px;
+		right: 5px;
+		border: none;
+	}
+	
+	body {
+		font-family: helvetica, arial;	
+	}
+
+	header, section, footer, aside, nav, article, figure, audio, video, canvas  { 
+    display:block; 
+	}
+	
+	a {
+		text-decoration: none;
+		color: #999;
+		font-style:italic;
+	}
+	
+	#top, #bottom, nav {
+    width: 99%;
+    text-align: center;
+    border: 1px solid #ddd;
+    margin: .1em;
+    padding: .2em;
+	}
+	
+	#bottom {
+    position: fixed;
+    bottom: .01em;
+    font-size: 65%;
+	}
+	
+	section {
+    padding: 0;
+    margin: 0;
+	}
+	
+	article.note {
+    width: 25%; 
+    text-align: center;
+    border: 1px solid rgba(0,0,0,.2);
+    background: #FCF0AD;
+    padding: .5em;
+    display: inline-block;
+    cursor: pointer;
+    position: absolute;
+	}
+	
+	article.note:first-child {
+    margin-left: 0;
+	}
+	
+	article.note:last-child {
+    margin-right: 0;
+	}
+	
+	article.note footer {
+		font-size: 67%;	
+	}
+	
+	article.note.new footer{
+		text-align: right;
+	}
+	
+	article.note header, article.note p, #top {
+		outline:none;
+	}
+	
+	aside {
+    position: fixed;
+    border: 1px solid #ddd;
+    background: #fff;
+    width: 12.5%;
+    height: 100%;
+    left: 0;
+    top: -1px;
+	}
+	
+	aside div.tab {
+    width: 15px;
+    height: 55px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-left: none;
+    position: absolute;
+    right: -16px;
+    bottom: 4em;
+    cursor: pointer;
+	}
+	
+	aside div.tab span {
+		position: fixed;
+		margin: -3.5em 0 0 -1.7em;
+		font-family: helvetica, arial;
+		font-size: 75%;
+		font-weight: bold;
+		letter-spacing: 2px;
+		text-shadow: -1px 0 0 rgba(255, 255, 255, .2);
+		color: rgba(0, 0, 0, .5);
+		background: #fff;
+	}
+	
+	aside ul {
+		
+	}
+	
+	.colors {
+		position: absolute;
+		top: 1px;
+		right: 3px;
+		height: 20px;
+		width: 20px;
+		overflow: hidden;
+	}
+	
+	.colors ul {
+		margin: 0; 
+		padding: 0;
+	}
+	
+	.colors ul li {
+		display: inline-block;
+		list-style: none;
+		border: 1px solid rgba(0,0,0,.1);	
+		height: 15px; width: 15px;
+		margin: 2px;
+	}
+
+	.del {
+		position: absolute;
+		top: -2px;
+		left: 0;
+		height: 22px;
+		width: 20px;
+		color: rgba(0, 0, 0, .2);
+		font-size: 20px;
+		cursor: pointer;
+	}
