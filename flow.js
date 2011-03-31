@@ -5,8 +5,18 @@ for(var i in d) { s = s.replace('{'+i+'}', function($1){
 
 $(document).ready(function(){
 	/* Vars */
-	var colors = ["#FCF0AD","#E9E74A","#EE5E9F","#FFDD2A","#F59DB9","#F9A55B", "#FFF"];
-	var shadow = "0 5px 10px rgba(0,0,0,.03)";
+	// From: http://www.instructables.com/id/Easy-Post-It-sticky-note-mosaics-using-free-soft/step13/Post-It-color-hex-values/
+	var colors = {
+		"Basic" 		: ["#FCF0AD", "#FFFFFF"],
+		"Neon" 			: ["#E9E74A","#EE5E9F","#FFDD2A","#F59DB9","#F9A55B"],
+		"Ultra" 		: ["#D0E17D","#36A9CE","#EF5AA1","#AE86BC","#FFDF25"],
+		"Tropical" 	: ["#56C4E8","#D0E068","#CD9EC0","#ED839D","#FFE476"],
+		"Samba" 		: ["#CDDD73","#F35F6D","#FAA457","#35BEB7","#D189B9"],
+		"Aquatic" 	: ["#99C7BC","#89B18C","#738FA7","#8A8FA3","#82ACB8"],
+		"Sunbrite" 	: ["#F9D6AC","#E9B561","#E89132","#DA7527","#DEAC2F"],
+		"Classic " 	: ["#BAB7A9","#BFB4AF","#CDC4C1","#CFB69E","#D0AD87"]
+	}
+	var shadow = "0 1em 2em rgba(0,0,0,.1)";
 	var storeKey = "pjotor.com/time/flow/";
 	var hasID = (document.location.hash.substr(2).length != 0);
 	
@@ -74,22 +84,23 @@ $(document).ready(function(){
 	
 	// Sets up the color picker (colors defined abow).
 	var setupColors = function(parent){
+		var selectedColors = [].concat(colors["Basic"]).concat(colors["Neon"]);
 		var list = 	$("<ul/>").hover(
 			function(){
-				if( $(this).parent().width() != (colors.length+1)*20 )
+				if( $(this).parent().width() != (selectedColors.length+1)*20 )
 					$(this).parent().stop().animate({ 
 						duration: 200, 
-						width: ((colors.length+1)*20) + "px" 
+						width: ((selectedColors.length+1)*20) + "px" 
 					});
 			},
 			function(){
 					$(this).parent().stop().delay(1500).animate({ duration: 200, width: "20px" });
 			}				
 		);
-		for( c in colors ) {
+		for( c in selectedColors ) {
 			list.append(
 				$("<li/>")
-					.css({ background: colors[c] })
+					.css({ background: selectedColors[c] })
 					.click(function(){
 						$(this).parents(".note").css({ 
 							backgroundColor: $(this).css("backgroundColor")
@@ -209,6 +220,7 @@ $(document).ready(function(){
 	$("article.note.new").css({	boxShadow: shadow, transform: "rotate(2.5deg)", 
 		top: "-65px", left: "-1px", position: "absolute" });
 	
+	$("#top").css({ boxShadow: shadow });
 	/* UI stuff */
 //	$("#tools .tab").toggle(
 //	    function(){ $("#tools").animate({duration: 300,  left: "-1px"   }); },    

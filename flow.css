@@ -7,6 +7,7 @@
 	
 	body {
 		font-family: helvetica, arial;	
+		background: #333 url(bg.gif);
 	}
 
 	header, section, footer, aside, nav, article, figure, audio, video, canvas  { 
@@ -22,9 +23,14 @@
 	#top, #bottom, nav {
     width: 99%;
     text-align: center;
-    border: 1px solid #ddd;
+    border: 1px solid rgba(0,0,0,.2);
     margin: .1em;
     padding: .2em;
+    background: rgba(255,255,255,.8);
+	}
+	
+	#top {
+		text-shadow: 0 0 0.5em rgba(0,0,0,.2);
 	}
 	
 	#bottom {
@@ -151,8 +157,8 @@
 	  -moz-transform: rotate(45deg);
 	  -webkit-transform: rotate(45deg);
 	  /* shadow */
-	  -moz-box-shadow: 0 0 1em #999;
-	  -webkit-box-shadow: 0 0 1em #999;
+	  -moz-box-shadow: 0 0 1em rgba(0,0,0,.5);
+	  -webkit-box-shadow: 0 0 1em rgba(0,0,0,.5);
 	}
 	.ribbon a {
 	  border: 1px solid #ddd;
@@ -164,5 +170,5 @@
 	  text-align: center;
 	  text-decoration: none;
 	  /* shadow */
-	  text-shadow: 0 0 0.5em #999;
+	  text-shadow: 0 0 0.5em rgba(0,0,0,.5);
 	}	
