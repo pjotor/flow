@@ -153,36 +153,39 @@ $(document).ready(function(){
 	var load = function(){
 		if(localStorage) {
 			data = JSON.parse(localStorage.getItem(storeKey));
-			if(data.title) $("#top").text(data.title);
-			var notes = data.notes;
-			for( n in notes ) {
-					var newNote = $("article.note.new").clone();
-					newNote.removeClass("new");
-					newNote.draggable(Note);
-					setupColors( newNote.children(".colors") );
-					
-					newNote.css({ 
-						backgroundColor: notes[n].meta.backgroundColor,
-						top: notes[n].meta.position.top + "px",
-						left: notes[n].meta.position.left + "px"
-					});
-					
-					newNote.prependTo("section");						
-
-					newNote.children("header").empty()
-						.text(notes[n].title)
-						.data("edited", notes[n].meta.edited.title);
-					newNote.children("p").empty()
-						.text(notes[n].note)
-						.data("edited", notes[n].meta.edited.note);
-					newNote.children("footer").empty()
-						.text(notes[n].info);
-					newNote.data({ 
-						created: notes[n].meta.created, 
-						updated: notes[n].meta.updated 
-					})	
-					
-					newNote.nudge();
+			
+			if( data ) {
+				if( data.title ) $("#top").text(data.title);
+				var notes = data.notes;
+				for( n in notes ) {
+						var newNote = $("article.note.new").clone();
+						newNote.removeClass("new");
+						newNote.draggable(Note);
+						setupColors( newNote.children(".colors") );
+						
+						newNote.css({ 
+							backgroundColor: notes[n].meta.backgroundColor,
+							top: notes[n].meta.position.top + "px",
+							left: notes[n].meta.position.left + "px"
+						});
+						
+						newNote.prependTo("section");						
+	
+						newNote.children("header").empty()
+							.text(notes[n].title)
+							.data("edited", notes[n].meta.edited.title);
+						newNote.children("p").empty()
+							.text(notes[n].note)
+							.data("edited", notes[n].meta.edited.note);
+						newNote.children("footer").empty()
+							.text(notes[n].info);
+						newNote.data({ 
+							created: notes[n].meta.created, 
+							updated: notes[n].meta.updated 
+						})	
+						
+						newNote.nudge();
+				}
 			}
 		} else alert("Local storage support missing.");
 	}		
