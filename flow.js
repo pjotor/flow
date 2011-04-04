@@ -1,3 +1,24 @@
+
+/*
+ * time/flow wall app
+ * 
+ * TODO: fix image drag & drop
+ *       fix deleter css && auto-hide
+ *       fix wallpicker
+ *       fix deletion of walls 
+ *       fix recursive image deletion
+ *       add descriptive image to wallpaper (fade it out?)
+ *       add url linkage of images
+ *       add unhosted storage
+ *       add linking and sharing
+ *       add password protection
+ *       add username functionality
+ *       move meta data to backside of note
+ */
+
+
+
+
 /* Helpers */
 String.prototype.prep = function(d){ var s = this; 
 for(var i in d) { s = s.replace('{'+i+'}', function($1){ 
@@ -28,20 +49,35 @@ $(document).ready(function(){
 							{	boxShadow: shadow, transform: "rotate(2.5deg)", 
 								top: "-80px", left: "-1px", position: "absolute" } :
 							{	boxShadow: shadow };
-							$(this).css(css);
+							if( !$(this).hasClass("img") ) $(this).css(css);
+							
+							$(this).resizable({ 
+								autoHide: true, 
+								handles: 'se', 
+								maxHeight: $(window).height(),
+								maxWidth: $(window).width(), 
+								create: function (event, ui) {
+									
+								},
+								stop: function(event, ui) {
+									if(console) console.log($(this));							
+								}
+							});								
 						},
 		start: 	function(){
 							//The main cloning stuff
 							if( $(this).hasClass("new") ) {
 								var newNote = $(this).clone();
-								newNote.draggable(Note);
-								newNote.prependTo("section");
-								setupColors( $(this).children(".colors") );
+								newNote.draggable(Note).prependTo("section");
+								
+								if( !$(this).hasClass("img") )
+									setupColors( $(this).children(".colors") );
+									
 								$(this).children("footer").text( 
 									"created: {date} {time} ".prep(getTime())
 								);
 								$(this).data("created", "{date} {time}".prep(getTime()));
-								$(this).removeClass("new");
+								$(this).removeClass("new");								
 							}
 							$(this).nudge();
 					  },  
@@ -135,8 +171,13 @@ $(document).ready(function(){
 	/* Save/Load Functions */
 	// Returns an Object with the notes (only edited notes (no, colorchange is not an edit))
 	var collectNotes = function(){
+		
+		/*
+		 * TODO:  fix image save logic (perhaps spreding image data over several keys)
+		 */
+		 
 		var data = [];
-		$(".note").each(function(){ 
+		$("section > .note").each(function(){ 
 			if( $(this).children("header, p").data("edited") ) {
 				data[data.length] = { 
 					title: $(this).children("header").text(), 
@@ -158,14 +199,39 @@ $(document).ready(function(){
 		return data;
 	}	
 	
+	var collectImages = function() {
+		var data = [];
+		$("section > .img").each(function(){
+			data[data.length] = {
+				name: $(this).data("name"), 
+				src: $(this).css("backgroundImage"),
+				position: $.extend({}, $(this).position(), { width: $(this).width(), height: $(this).height() })
+			}
+		});
+		return data;
+	}
+	
 	// Saves the object (stringified) to local store, key define abow
 	var save = function(){
-		if(localStorage) 
+		if(localStorage) {
+			
+			// TODO: fix image data saving (saves OK but reports faulty)
+			var images = collectImages();
+			var imageNames = [];
+			for (var i in images) {
+				localStorage.setItem(
+					storeKey + flowID + ":image:" + images[i].name, 
+					JSON.stringify(images[i]) 
+				);
+				imageNames[imageNames.data] = images[i].name;
+			}
+			
 			localStorage.setItem(storeKey + flowID, JSON.stringify({ 
 				notes: collectNotes(), 
-				title: $("#top").text()
+				title: $("#top").text(),
+				images: imageNames
 			}) );
-		else 
+		} else 
 			alert("Local storage support missing.");
 	}
 	
@@ -177,7 +243,7 @@ $(document).ready(function(){
 			if( data ) {
 				if( data.title ) $("#top").text(data.title);
 				var notes = data.notes;
-				for( n in notes ) {
+				for( var n in notes ) {
 						var newNote = $("article.note.new").clone();
 						newNote.removeClass("new");
 						newNote.draggable(Note);
@@ -211,23 +277,12 @@ $(document).ready(function(){
 	}		
 
 	/* Enhansers */
-	// Sets some css and animation lazy
-//	$(".del").css({ borderRadius: "28px" });
-
-//	$("#tools .tab span").css({ transform: "rotate(-90deg)", borderRadius: "4px" });
-//	$("#tools").animate({ duration: 1500, left: "-12.5%" });
 
 	$("article.note.new").css({	boxShadow: shadow, transform: "rotate(2.5deg)", 
 		top: "-65px", left: "-1px", position: "absolute" });
 	
 	$("#top, #bottom").css({ boxShadow: "0 1px 0 rgba(255,255,255,.2), 0 0 1em rgba(0,0,0,.3) inset", borderRadius: "4px" });
-	
-//	$("body").css({ boxShadow: "0 0 10em rgba(0,0,0,.5) inset" });
-	/* UI stuff */
-//	$("#tools .tab").toggle(
-//	    function(){ $("#tools").animate({duration: 300,  left: "-1px"   }); },    
-//	    function(){ $("#tools").animate({duration: 1500, left: "-12.5%" }); }
-//	);
+
 	
 	$("article.note").draggable(Note);
 	
@@ -271,44 +326,82 @@ $(document).ready(function(){
 
 	$(".del").live("click", function(){ 
 		if( !$(this).siblings("header, p").data("edited") ) {
-			$(this).parents("article.note").remove();
+			$(this).parents("article").remove();
 		} else {
 			if ( confirm("For real real?") ) {
-				$(this).parents("article.note").remove(); 
+				localStorage.removeItem( storeKey + flowID + ":image:" + 
+					$(this).parents("article").data("name") );
+
+				$(this).parents("article").remove();
 				save();
 			}
 		}
 	});
 
+	/* Drag & Drop functionality */
+
 	var droped = function(e) {
 		e.preventDefault();
  		var files = e.dataTransfer.files;
 		for ( var i in files ) {
-			if ( typeof files[i] == "object" && files[i].type.indexOf("image") > -1 ) {
+
+			// Check that it's a image and not more than 500k
+			if ( typeof files[i] == "object" && 
+					 files[i].type.indexOf("image") > -1 && 
+					 files[i].size < (1024 * 500) ) {
+
+
 				reader = new FileReader();
 				reader.index = i;
 				reader.file = files[i];
 				reader.onload = function (evt) { 
-					var img = $("<img/>").attr("src", evt.target.result);
-					img.draggable(Note);
-					img.css({ boxShadow: "none" });
-					img.prependTo("section");
-					img.animate({ 
-						duration: 300, 
-						top: $(window).width()/2 + "px", 
-						left: $(window).height()/2 + "px" 
+					// Create an article element with the image as background
+					// This is to add the draging and resizing functionality
+					var img = $("<article/>").addClass("img").css({ 
+						boxShadow: "none", 
+						// The data provider from the FileReader API don't have height and width
+						// TODO: see if there's a work around for this.
+						width: "25%", height: "25%", 
+						position: "absolute", 
+						backgroundImage: "url('" + evt.target.result + "')",
+						backgroundSize: "100%", 
+						backgroundRepeat: "no-repeat", 
+						backgroundPosition: "left top"
 					});
+					$('<div class="del">&otimes;</div>').prependTo(img);
+					img.prependTo("section");
+
+					img.data("name", evt.target.file.name || evt.target.file.filename);
+					img.draggable(Note);
 				}
 				reader.readAsDataURL(files[i]);
+			
 			}
 		}
+		//Prevent loading the image as per default
 		return false
 	}
 	
+	// Prevent bubbeling and default behavior (loading the image in the browser)
 	var listen = function(e) { e.preventDefault(); return false; }
 	
+	//Add the event listner to the document
 	document.addEventListener("drop", droped, true);
 	$(document).bind('dragenter', listen).bind('dragover', listen).bind('dragleave', listen);	
+
+
+	// Sets some css and animation lazy
+//	$(".del").css({ borderRadius: "28px" });
+
+//	$("#tools .tab span").css({ transform: "rotate(-90deg)", borderRadius: "4px" });
+//	$("#tools").animate({ duration: 1500, left: "-12.5%" });
+	
+//	$("body").css({ boxShadow: "0 0 10em rgba(0,0,0,.5) inset" });
+	/* UI stuff */
+//	$("#tools .tab").toggle(
+//	    function(){ $("#tools").animate({duration: 300,  left: "-1px"   }); },    
+//	    function(){ $("#tools").animate({duration: 1500, left: "-12.5%" }); }
+//	);
 
 
 	/* Load saved data*/
