@@ -328,9 +328,10 @@ $(document).ready(function () { /* Vars */
     // Loads and draws the notes, key defined abow
     var load = function () {
         if (localStorage) {
-            data = JSON.parse(localStorage.getItem(storeKey + flowID).LZW());
+            data = localStorage.getItem(storeKey + flowID);
 
             if (data) {
+            	data = JSON.parse(data.LZW());
                 if (data.title) $("#top").text(data.title);
                 var i, n, img;
 

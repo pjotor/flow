@@ -75,6 +75,9 @@
 	
 	article.note footer {
 		font-size: 67%;	
+		position: absolute;
+		bottom: 0;
+		right: .5em;		
 	}
 	
 	article.note.new footer{
