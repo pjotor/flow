@@ -108,29 +108,26 @@ $(document).ready(function () { /* Vars */
                 boxShadow: shadow
             };
             if (!$(this).hasClass("img")) $(this).css(css);
-
-            $(this).resizable({
-                aspectRatio: $(this).hasClass("img"),
-                autoHide: true,
-                handles: 'se',
-                maxHeight: $(window).height(),
-                maxWidth: $(window).width(),
-                stop: function () {
-                    $(this).addClass("changed");
-                    save();
-                }
-            });
         },
         start: function () {
             //The main cloning stuff
             if ($(this).hasClass("new")) {
                 var newNote = $(this).clone();
                 newNote.draggable(Note).prependTo("section");
-
                 if (!$(this).hasClass("img")) setupColors($(this).children(".colors"));
-
                 $(this).children("footer").text("created: {date} {time} ".prep(getTime()));
                 $(this).data("created", "{date} {time}".prep(getTime()));
+	            $(this).resizable({
+	                aspectRatio: $(this).hasClass("img"),
+	                autoHide: true,
+	                handles: 'se',
+	                maxHeight: $(window).height(),
+	                maxWidth: $(window).width(),
+	                stop: function () {
+	                    $(this).addClass("changed");
+	                    save();
+	                }
+	            });
                 $(this).removeClass("new");
             }
             $(this).nudge();
@@ -186,6 +183,17 @@ $(document).ready(function () { /* Vars */
             edited: true
         });
         img.draggable(Note);
+        img.resizable({
+            aspectRatio: true,
+            autoHide: true,
+            handles: 'se',
+            maxHeight: $(window).height(),
+            maxWidth: $(window).width(),
+            stop: function () {
+                $(this).addClass("changed");
+                save();
+            }
+        });        
         return img
     }
 
