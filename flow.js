@@ -273,7 +273,10 @@ $(document).ready(function () { /* Vars */
                     meta: {
                         created: $(this).data("created"),
                         updated: $(this).data("updated"),
-                        position: $(this).position(),
+                        position: $.extend({}, $(this).position(), {
+		                    width: $(this).width(),
+		                    height: $(this).height()
+		                }),
                         backgroundColor: $(this).css("backgroundColor"),
                         zIndex: $(this).css("zIndex") || 0,
                         edited: true
@@ -342,6 +345,8 @@ $(document).ready(function () { /* Vars */
                         backgroundColor: notes[n].meta.backgroundColor,
                         top: notes[n].meta.position.top + "px",
                         left: notes[n].meta.position.left + "px",
+                        width: notes[n].meta.position.width + "px",
+                        height: notes[n].meta.position.height,                        
                         zIndex: notes[n].meta.zIndex
                     });
 
