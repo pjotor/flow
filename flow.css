@@ -154,6 +154,7 @@
 		color: rgba(0, 0, 0, .2);
 		font-size: 20px;
 		cursor: pointer;
+		text-shadow: 0 1px 0 rgba(255, 255, 255, .2);
 	}
 	
 	.ribbon {

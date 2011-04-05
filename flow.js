@@ -2,11 +2,9 @@
 /*
  * time/flow wall app
  * 
- * TODO: fix image drag & drop
- *       fix deleter css && auto-hide
+ * TODO: fix deleter css && auto-hide
  *       fix wallpicker
  *       fix deletion of walls 
- *       fix recursive image deletion
  *       add descriptive image to wallpaper (fade it out?)
  *       add url linkage of images
  *       add unhosted storage
@@ -47,7 +45,7 @@ $(document).ready(function(){
 		create: function(){
 							var css = $(this).hasClass("new") ?  
 							{	boxShadow: shadow, transform: "rotate(2.5deg)", 
-								top: "-80px", left: "-1px", position: "absolute" } :
+								top: "-60px", left: "-1px", position: "absolute" } :
 							{	boxShadow: shadow };
 							if( !$(this).hasClass("img") ) $(this).css(css);
 							
@@ -56,12 +54,7 @@ $(document).ready(function(){
 								handles: 'se', 
 								maxHeight: $(window).height(),
 								maxWidth: $(window).width(), 
-								create: function (event, ui) {
-									
-								},
-								stop: function(event, ui) {
-									if(console) console.log($(this));							
-								}
+								stop: save
 							});								
 						},
 		start: 	function(){
@@ -87,6 +80,17 @@ $(document).ready(function(){
 						}
 	}
 	
+	var imageCss = { 
+		boxShadow: "none", 
+		// The data provider from the FileReader API don't have height and width
+		// TODO: see if there's a work around for this.
+		width: "25%", height: "25%", 
+		position: "absolute", 
+		backgroundSize: "100%", 
+		backgroundRepeat: "no-repeat", 
+		backgroundPosition: "left top"
+	}
+	
 	/* Extentions */
 	// Slightly rotates the element with an animation.
 	$.fn.nudge = function(){ 
@@ -100,6 +104,19 @@ $(document).ready(function(){
 	/* Utils */
 	// Zero padding. Defaiults to 2 chas.
 	var z = function(s,p,l){ p=p||"00"; l=l||2; return (p+s).substr(l*-1); }
+
+	var addImage = function( data, name ) {
+			// Create an article element with the image as background
+			// This is to add the draging and resizing functionality
+		
+			var img = $("<article/>").addClass("img").css(imageCss);
+			img.css({ backgroundImage: data })
+			$('<div class="del">&otimes;</div>').prependTo(img);
+			img.prependTo("section");
+			img.data({ name: name, edited: true });
+			img.draggable(Note);	
+			return img
+	}
 
 	// Generate flow ID
 	var newID = function(){ 
@@ -152,9 +169,9 @@ $(document).ready(function(){
 	var bluring = function(ob){
 		if( !ob.text().length ) {
 			ob.text("Doubble click to edit…"); 
-			ob.data("edited", false);
+			ob.parents("article").data("edited", false);
 		} else 
-			ob.data("edited", true);
+			ob.parents("article").data("edited", true);
 			
 		ob.attr("contenteditable", false);
 	}	
@@ -162,7 +179,7 @@ $(document).ready(function(){
 	// Focus on dblclick (helper)
 	var focusing = function(ob){
 		ob.attr("contenteditable", true);
-		if( !ob.data("edited") )
+		if( !ob.parents("article").data("edited") )
 			ob.text("");
 			
 		ob.focus().select();
@@ -171,14 +188,9 @@ $(document).ready(function(){
 	/* Save/Load Functions */
 	// Returns an Object with the notes (only edited notes (no, colorchange is not an edit))
 	var collectNotes = function(){
-		
-		/*
-		 * TODO:  fix image save logic (perhaps spreding image data over several keys)
-		 */
-		 
 		var data = [];
 		$("section > .note").each(function(){ 
-			if( $(this).children("header, p").data("edited") ) {
+			if( $(this).data("edited") ) {
 				data[data.length] = { 
 					title: $(this).children("header").text(), 
 					note: $(this).children("p").text(), 
@@ -188,10 +200,8 @@ $(document).ready(function(){
 						updated: $(this).data("updated"),
 						position: $(this).position(), 
 						backgroundColor: $(this).css("backgroundColor"), 
-						edited: {
-							title: $(this).children("header").data("edited"),
-							note: $(this).children("p").data("edited")
-						}
+						zIndex: $(this).css("zIndex") || 0, 
+						edited: true
 					}
 				} 
 			}
@@ -205,7 +215,9 @@ $(document).ready(function(){
 			data[data.length] = {
 				name: $(this).data("name"), 
 				src: $(this).css("backgroundImage"),
-				position: $.extend({}, $(this).position(), { width: $(this).width(), height: $(this).height() })
+				position: $.extend({}, $(this).position(), 
+					{ width: $(this).width(), height: $(this).height() }),
+				zIndex: $(this).css("zIndex") || 0
 			}
 		});
 		return data;
@@ -215,7 +227,6 @@ $(document).ready(function(){
 	var save = function(){
 		if(localStorage) {
 			
-			// TODO: fix image data saving (saves OK but reports faulty)
 			var images = collectImages();
 			var imageNames = [];
 			for (var i in images) {
@@ -223,16 +234,15 @@ $(document).ready(function(){
 					storeKey + flowID + ":image:" + images[i].name, 
 					JSON.stringify(images[i]) 
 				);
-				imageNames[imageNames.data] = images[i].name;
+				imageNames[imageNames.length] = images[i].name;
 			}
 			
 			localStorage.setItem(storeKey + flowID, JSON.stringify({ 
 				notes: collectNotes(), 
 				title: $("#top").text(),
-				images: imageNames
+				images: imageNames 
 			}) );
-		} else 
-			alert("Local storage support missing.");
+		} 
 	}
 	
 	// Loads and draws the notes, key defined abow
@@ -242,8 +252,10 @@ $(document).ready(function(){
 			
 			if( data ) {
 				if( data.title ) $("#top").text(data.title);
+				var i, n, img;
+				
 				var notes = data.notes;
-				for( var n in notes ) {
+				for( n in notes ) {
 						var newNote = $("article.note.new").clone();
 						newNote.removeClass("new");
 						newNote.draggable(Note);
@@ -252,19 +264,15 @@ $(document).ready(function(){
 						newNote.css({ 
 							backgroundColor: notes[n].meta.backgroundColor,
 							top: notes[n].meta.position.top + "px",
-							left: notes[n].meta.position.left + "px"
+							left: notes[n].meta.position.left + "px", 
+							zIndex: notes[n].meta.zIndex
 						});
 						
 						newNote.prependTo("section");						
-	
-						newNote.children("header").empty()
-							.text(notes[n].title)
-							.data("edited", notes[n].meta.edited.title);
-						newNote.children("p").empty()
-							.text(notes[n].note)
-							.data("edited", notes[n].meta.edited.note);
-						newNote.children("footer").empty()
-							.text(notes[n].info);
+						newNote.data("edited", notes[n].meta.edited);
+							
+						newNote.children("p").empty().text(notes[n].note);
+						newNote.children("footer").empty().text(notes[n].info);
 						newNote.data({ 
 							created: notes[n].meta.created, 
 							updated: notes[n].meta.updated 
@@ -272,6 +280,21 @@ $(document).ready(function(){
 						
 						newNote.nudge();
 				}
+				
+				var images = data.images;
+				for( i in images ) {
+					image = JSON.parse( localStorage.getItem( storeKey + flowID + ":image:" + images[i] ) );
+					img = addImage( image.src, image.name );
+					img.css({ 
+						top:    image.position.top + "px", 
+						left:   image.position.left + "px", 
+						width:  image.position.width + "px", 
+						height: image.position.height, 
+						zIndex: image.zIndex 
+					});
+ 					img.data("name", images[i].name);
+				}
+				
 			}
 		} else alert("Local storage support missing.");
 	}		
@@ -325,7 +348,7 @@ $(document).ready(function(){
 	});		
 
 	$(".del").live("click", function(){ 
-		if( !$(this).siblings("header, p").data("edited") ) {
+		if( !$(this).parents("article").data("edited") ) {
 			$(this).parents("article").remove();
 		} else {
 			if ( confirm("For real real?") ) {
@@ -350,29 +373,13 @@ $(document).ready(function(){
 					 files[i].type.indexOf("image") > -1 && 
 					 files[i].size < (1024 * 500) ) {
 
-
 				reader = new FileReader();
 				reader.index = i;
 				reader.file = files[i];
 				reader.onload = function (evt) { 
-					// Create an article element with the image as background
-					// This is to add the draging and resizing functionality
-					var img = $("<article/>").addClass("img").css({ 
-						boxShadow: "none", 
-						// The data provider from the FileReader API don't have height and width
-						// TODO: see if there's a work around for this.
-						width: "25%", height: "25%", 
-						position: "absolute", 
-						backgroundImage: "url('" + evt.target.result + "')",
-						backgroundSize: "100%", 
-						backgroundRepeat: "no-repeat", 
-						backgroundPosition: "left top"
-					});
-					$('<div class="del">&otimes;</div>').prependTo(img);
-					img.prependTo("section");
-
-					img.data("name", evt.target.file.name || evt.target.file.filename);
-					img.draggable(Note);
+					var img = addImage( "url(" + evt.target.result + ")", 
+						evt.target.file.name || evt.target.file.filename );
+					img.animate({ duration: 500, top: "100px", left: "150px" });
 				}
 				reader.readAsDataURL(files[i]);
 			
