@@ -14,7 +14,8 @@
 	
 	body {
 		font-family: helvetica, arial;	
-		background: #333 url(bg.gif);
+		background: url(instr.0.png) center center no-repeat, url(instr.1.png) 8em 4em no-repeat, url(bg.gif);
+	background-color: #333;
 	}
 
 	header, section, footer, aside, nav, article, figure, audio, video, canvas  { 
