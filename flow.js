@@ -18,6 +18,7 @@
 
 
 /* Helpers */
+// Pattern replacer
 String.prototype.prep = function (d) {
     var s = this;
     for (var i in d) {
@@ -26,6 +27,57 @@ String.prototype.prep = function (d) {
         });
     }
     return s;
+}
+// LZW string compressor
+String.prototype.lzw = function(){
+    var dict = {};
+    var data = (this + "").split("");
+    var out = [];
+    var currChar;
+    var phrase = data[0];
+    var code = 256;
+    for (var i=1; i<data.length; i++) {
+        currChar=data[i];
+        if (dict[phrase + currChar] != null) {
+            phrase += currChar;
+        }
+        else {
+            out.push(phrase.length > 1 ? dict[phrase] : phrase.charCodeAt(0));
+            dict[phrase + currChar] = code;
+            code++;
+            phrase=currChar;
+        }
+    }
+    out.push(phrase.length > 1 ? dict[phrase] : phrase.charCodeAt(0));
+    for (var i=0; i<out.length; i++) {
+        out[i] = String.fromCharCode(out[i]);
+    }
+    return out.join("");
+}
+// LZW string inflator
+String.prototype.LZW = function(){
+    var dict = {};
+    var data = (this + "").split("");
+    var currChar = data[0];
+    var oldPhrase = currChar;
+    var out = [currChar];
+    var code = 256;
+    var phrase;
+    for (var i=1; i<data.length; i++) {
+        var currCode = data[i].charCodeAt(0);
+        if (currCode < 256) {
+            phrase = data[i];
+        }
+        else {
+           phrase = dict[currCode] ? dict[currCode] : (oldPhrase + currChar);
+        }
+        out.push(phrase);
+        currChar = phrase.charAt(0);
+        dict[code] = oldPhrase + currChar;
+        code++;
+        oldPhrase = phrase;
+    }
+    return out.join("");
 }
 
 $(document).ready(function () { /* Vars */
@@ -53,19 +105,22 @@ $(document).ready(function () { /* Vars */
                 transform: "rotate(2.5deg)",
                 top: "-60px",
                 left: "-1px",
-                position: "absolute"
+                position: "absolute"	
             } : {
                 boxShadow: shadow
             };
             if (!$(this).hasClass("img")) $(this).css(css);
 
             $(this).resizable({
-            	aspectRatio: true,
+            	aspectRatio: $(this).hasClass("img"),
                 autoHide: true,
                 handles: 'se',
                 maxHeight: $(window).height(),
                 maxWidth: $(window).width(),
-                stop: save
+                stop: function() {
+                	$(this).addClass("changed");
+                	save();
+                }
             });
         },
         start: function () {
@@ -84,6 +139,7 @@ $(document).ready(function () { /* Vars */
         },
         stop: function () {
             if ($(this).hasClass("new")) $(this).nudge();
+           	$(this).addClass("changed");
             save();
         }
     }
@@ -223,6 +279,7 @@ $(document).ready(function () { /* Vars */
                         edited: true
                     }
                 }
+                $(this).removeClass("changed");
             }
         });
         return data;
@@ -240,6 +297,7 @@ $(document).ready(function () { /* Vars */
                 }),
                 zIndex: $(this).css("zIndex") || 0
             }
+            $(this).removeClass("changed");            
         });
         return data;
     }
@@ -252,7 +310,7 @@ $(document).ready(function () { /* Vars */
             var imageNames = [];
             for (var i in images) {
                 localStorage.setItem(
-                storeKey + flowID + ":image:" + images[i].name, JSON.stringify(images[i]));
+                storeKey + flowID + ":image:" + images[i].name, JSON.stringify(images[i]).lzw() );
                 imageNames[imageNames.length] = images[i].name;
             }
 
@@ -260,14 +318,14 @@ $(document).ready(function () { /* Vars */
                 notes: collectNotes(),
                 title: $("#top").text(),
                 images: imageNames
-            }));
+            }).lzw() );
         }
     }
 
     // Loads and draws the notes, key defined abow
     var load = function () {
         if (localStorage) {
-            data = JSON.parse(localStorage.getItem(storeKey + flowID));
+            data = JSON.parse(localStorage.getItem(storeKey + flowID).LZW());
 
             if (data) {
                 if (data.title) $("#top").text(data.title);
@@ -302,7 +360,7 @@ $(document).ready(function () { /* Vars */
 
                 var images = data.images;
                 for (i in images) {
-                    image = JSON.parse(localStorage.getItem(storeKey + flowID + ":image:" + images[i]));
+                    image = JSON.parse(localStorage.getItem(storeKey + flowID + ":image:" + images[i]).LZW());
                     img = addImage(image.src, image.name);
                     img.css({
                         top: image.position.top + "px",
