@@ -29,33 +29,32 @@ String.prototype.prep = function (d) {
     return s;
 }
 // LZW string compressor
-String.prototype.lzw = function(){
+String.prototype.lzw = function () {
     var dict = {};
     var data = (this + "").split("");
     var out = [];
     var currChar;
     var phrase = data[0];
     var code = 256;
-    for (var i=1; i<data.length; i++) {
-        currChar=data[i];
+    for (var i = 1; i < data.length; i++) {
+        currChar = data[i];
         if (dict[phrase + currChar] != null) {
             phrase += currChar;
-        }
-        else {
+        } else {
             out.push(phrase.length > 1 ? dict[phrase] : phrase.charCodeAt(0));
             dict[phrase + currChar] = code;
             code++;
-            phrase=currChar;
+            phrase = currChar;
         }
     }
     out.push(phrase.length > 1 ? dict[phrase] : phrase.charCodeAt(0));
-    for (var i=0; i<out.length; i++) {
+    for (var i = 0; i < out.length; i++) {
         out[i] = String.fromCharCode(out[i]);
     }
     return out.join("");
 }
 // LZW string inflator
-String.prototype.LZW = function(){
+String.prototype.LZW = function () {
     var dict = {};
     var data = (this + "").split("");
     var currChar = data[0];
@@ -63,13 +62,12 @@ String.prototype.LZW = function(){
     var out = [currChar];
     var code = 256;
     var phrase;
-    for (var i=1; i<data.length; i++) {
+    for (var i = 1; i < data.length; i++) {
         var currCode = data[i].charCodeAt(0);
         if (currCode < 256) {
             phrase = data[i];
-        }
-        else {
-           phrase = dict[currCode] ? dict[currCode] : (oldPhrase + currChar);
+        } else {
+            phrase = dict[currCode] ? dict[currCode] : (oldPhrase + currChar);
         }
         out.push(phrase);
         currChar = phrase.charAt(0);
@@ -83,12 +81,12 @@ String.prototype.LZW = function(){
 $(document).ready(function () { /* Vars */
     // From: http://www.instructables.com/id/Easy-Post-It-sticky-note-mosaics-using-free-soft/step13/Post-It-color-hex-values/
     var colors = {
-        "Basic": ["#FCF0AD", "#FFFFFF"],
-        "Neon": ["#E9E74A", "#EE5E9F", "#FFDD2A", "#F59DB9", "#F9A55B"],
-        "Ultra": ["#D0E17D", "#36A9CE", "#EF5AA1", "#AE86BC", "#FFDF25"],
+        "Basic": 	["#FCF0AD", "#FFFFFF"],
+        "Neon": 	["#E9E74A", "#EE5E9F", "#FFDD2A", "#F59DB9", "#F9A55B"],
+        "Ultra": 	["#D0E17D", "#36A9CE", "#EF5AA1", "#AE86BC", "#FFDF25"],
         "Tropical": ["#56C4E8", "#D0E068", "#CD9EC0", "#ED839D", "#FFE476"],
-        "Samba": ["#CDDD73", "#F35F6D", "#FAA457", "#35BEB7", "#D189B9"],
-        "Aquatic": ["#99C7BC", "#89B18C", "#738FA7", "#8A8FA3", "#82ACB8"],
+        "Samba": 	["#CDDD73", "#F35F6D", "#FAA457", "#35BEB7", "#D189B9"],
+        "Aquatic": 	["#99C7BC", "#89B18C", "#738FA7", "#8A8FA3", "#82ACB8"],
         "Sunbrite": ["#F9D6AC", "#E9B561", "#E89132", "#DA7527", "#DEAC2F"],
         "Classic ": ["#BAB7A9", "#BFB4AF", "#CDC4C1", "#CFB69E", "#D0AD87"]
     }
@@ -105,21 +103,21 @@ $(document).ready(function () { /* Vars */
                 transform: "rotate(2.5deg)",
                 top: "-60px",
                 left: "-1px",
-                position: "absolute"	
+                position: "absolute"
             } : {
                 boxShadow: shadow
             };
             if (!$(this).hasClass("img")) $(this).css(css);
 
             $(this).resizable({
-            	aspectRatio: $(this).hasClass("img"),
+                aspectRatio: $(this).hasClass("img"),
                 autoHide: true,
                 handles: 'se',
                 maxHeight: $(window).height(),
                 maxWidth: $(window).width(),
-                stop: function() {
-                	$(this).addClass("changed");
-                	save();
+                stop: function () {
+                    $(this).addClass("changed");
+                    save();
                 }
             });
         },
@@ -139,7 +137,7 @@ $(document).ready(function () { /* Vars */
         },
         stop: function () {
             if ($(this).hasClass("new")) $(this).nudge();
-           	$(this).addClass("changed");
+            $(this).addClass("changed");
             save();
         }
     }
@@ -243,10 +241,10 @@ $(document).ready(function () { /* Vars */
         if (!ob.text().length) {
             ob.text("Doubble click to edit…");
             ob.parents("article").data("edited", false);
-            		ob.data("edited", false);
+            ob.data("edited", false);
         } else {
-        		ob.parents("article").data("edited", true);
-        		ob.data("edited", true);
+            ob.parents("article").data("edited", true);
+            ob.data("edited", true);
         }
         ob.attr("contenteditable", false);
     }
@@ -254,8 +252,7 @@ $(document).ready(function () { /* Vars */
     // Focus on dblclick (helper)
     var focusing = function (ob) {
         ob.attr("contenteditable", true);
-        if ( ob.parents("article").data("edited") || ob.data("edited") ) {
-        	} else ob.text("");
+        if (ob.parents("article").data("edited") ||  ob.data("edited")) {} else ob.text("");
 
         ob.focus().select();
     }
@@ -274,9 +271,9 @@ $(document).ready(function () { /* Vars */
                         created: $(this).data("created"),
                         updated: $(this).data("updated"),
                         position: $.extend({}, $(this).position(), {
-		                    width: $(this).width(),
-		                    height: $(this).height()
-		                }),
+                            width: $(this).width(),
+                            height: $(this).height()
+                        }),
                         backgroundColor: $(this).css("backgroundColor"),
                         zIndex: $(this).css("zIndex") || 0,
                         edited: true
@@ -300,7 +297,7 @@ $(document).ready(function () { /* Vars */
                 }),
                 zIndex: $(this).css("zIndex") || 0
             }
-            $(this).removeClass("changed");            
+            $(this).removeClass("changed");
         });
         return data;
     }
@@ -313,7 +310,7 @@ $(document).ready(function () { /* Vars */
             var imageNames = [];
             for (var i in images) {
                 localStorage.setItem(
-                storeKey + flowID + ":image:" + images[i].name, JSON.stringify(images[i]).lzw() );
+                storeKey + flowID + ":image:" + images[i].name, JSON.stringify(images[i]).lzw());
                 imageNames[imageNames.length] = images[i].name;
             }
 
@@ -321,7 +318,7 @@ $(document).ready(function () { /* Vars */
                 notes: collectNotes(),
                 title: $("#top").text(),
                 images: imageNames
-            }).lzw() );
+            }).lzw());
         }
     }
 
@@ -331,7 +328,7 @@ $(document).ready(function () { /* Vars */
             data = localStorage.getItem(storeKey + flowID);
 
             if (data) {
-            	data = JSON.parse(data.LZW());
+                data = JSON.parse(data.LZW());
                 if (data.title) $("#top").text(data.title);
                 var i, n, img;
 
@@ -347,7 +344,7 @@ $(document).ready(function () { /* Vars */
                         top: notes[n].meta.position.top + "px",
                         left: notes[n].meta.position.left + "px",
                         width: notes[n].meta.position.width + "px",
-                        height: notes[n].meta.position.height,                        
+                        height: notes[n].meta.position.height,
                         zIndex: notes[n].meta.zIndex
                     });
 
@@ -465,17 +462,18 @@ $(document).ready(function () { /* Vars */
                 reader.index = i;
                 reader.file = files[i];
                 reader.onload = function (evt) {
-                	var tempImg = new Image();
-                	tempImg.onload = function(){
-	                    var img = addImage("url(" +this.src + ")", evt.target.file.name || evt.target.file.filename);
-	                    img.css({ height: this.height, width: this.width });
-	                    img.animate({
-	                        duration: 500,
-	                        top: "100px",
-	                        left: "150px"
-	                    });
-               		}
-               		tempImg.src = evt.target.result;
+                    var tempImg = new Image();
+                    tempImg.onload = function () {
+                        var img = addImage("url(" + this.src + ")", evt.target.file.name || evt.target.file.filename);
+                        img.css({
+                            height: this.height,
+                            width: this.width,
+                            top: (e.y - ( this.height / 2 )),
+                            left: (e.x - ( this.width / 2 ))
+                        });
+                    	save();
+                    }
+                    tempImg.src = evt.target.result;
                 }
                 reader.readAsDataURL(files[i]);
             }
@@ -505,7 +503,6 @@ $(document).ready(function () { /* Vars */
     //	    function(){ $("#tools").animate({duration: 300,  left: "-1px"   }); },    
     //	    function(){ $("#tools").animate({duration: 1500, left: "-12.5%" }); }
     //	);
-
     /* Load saved data*/
     load();
 });
