@@ -169,9 +169,9 @@ $(document).ready(function () { /* Vars */
         return (p + s).substr(l * -1);
     }
 
+	// Create an article element with the image as background
+    // This is to add the draging and resizing functionality
     var addImage = function (data, name) {
-        // Create an article element with the image as background
-        // This is to add the draging and resizing functionality
         var img = $("<article/>").addClass("img").css(imageCss);
         img.css({
             backgroundImage: data
@@ -293,6 +293,7 @@ $(document).ready(function () { /* Vars */
         return data;
     }
 
+	// Returns an Array with the images on the wall ()
     var collectImages = function () {
         var data = [];
         $("section > .img").each(function () {
@@ -402,6 +403,7 @@ $(document).ready(function () { /* Vars */
         borderRadius: "4px"
     });
 
+	$(".ribbon").css({ transform: "rotate(45deg)", shadow: "0 0 1em rgba(0,0,0,.5)" });
 
     $("article.note").draggable(Note);
 
