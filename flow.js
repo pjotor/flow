@@ -3,8 +3,7 @@
  * 
  * TODO: fix image saving speeds, don't overdo it
  *       fix deleter css && auto-hide
- *       fix wallpicker
- *       fix deletion of walls 
+ *       fix wallpicker --
  *       add descriptive image to wallpaper (fade it out?)
  *       add url linkage of images
  *       add unhosted storage
@@ -14,15 +13,12 @@
  *       move meta data to backside of note
  */
 
-
-
-
 /* Helpers */
 // Pattern replacer
 String.prototype.prep = function (d) {
     var s = this;
     for (var i in d) {
-        s = s.replace('{' + i + '}', function ($1) {
+        s = s.replace(RegExp('{'+i+'}','gi'), function ($1) {
             return d[$1.substr(1, $1.length - 2)];
         });
     }
@@ -129,6 +125,7 @@ $(document).ready(function () { /* Vars */
 	                }
 	            });
                 $(this).removeClass("new");
+
             }
             $(this).nudge();
         },
@@ -244,6 +241,49 @@ $(document).ready(function () { /* Vars */
         list.appendTo(parent);
     };
 
+    var setupMenu = function() {
+        $(".subnav").empty(); $(".walls span").remove();
+        var menuItem = '<li><a href="#!{name}" target="_self">{name}</a><a href src="#!{name}" class="deleteWall">&otimes;</a></li>';
+        for(store in localStorage) { 
+            if( store.indexOf(storeKey) > -1 && store.indexOf("image") == -1 ) {
+                $(".subnav").append( $( menuItem.prep({name: store.replace(storeKey, '')}) ) );
+            }
+        }
+        
+        if( $("ul.subnav").children().length > 0 ) {
+            $("ul.subnav").parent().append("<span></span>");    
+        	$("ul.walls li span").click(function() {
+                $(this).parent().find("ul.subnav").slideDown('fast').show();
+                
+        		$(this).parent().hover(
+                    function() {
+            		}, function(){
+            			$(this).parent().find("ul.subnav").slideUp('slow');
+            		}
+                );
+        	}).hover(
+                function() {
+        			$(this).addClass("subhover");
+        		}, function(){
+        			$(this).removeClass("subhover");
+                }
+            );
+            
+            $(".deleteWall").click(function(e){
+                e.preventDefault();
+                var wall = $(this).attr("src").replace("#!","");
+                if( confirm( "Delete Wall: {name}?".prep({ name: wall }) ) ) {
+                    for( store in localStorage ) {
+                        if( store.indexOf(storeKey+wall) > -1 ) {
+                            localStorage.removeItem(store);
+                        }                        
+                    }
+                    setupMenu();
+                }    
+            });
+        }
+    }
+
     // Handles the bluring (helper)
     var bluring = function (ob) {
         if (!ob.text().length) {
@@ -260,7 +300,7 @@ $(document).ready(function () { /* Vars */
     // Focus on dblclick (helper)
     var focusing = function (ob) {
         ob.attr("contenteditable", true);
-        if (ob.parents("article").data("edited") ||  ob.data("edited")) {} else ob.text("");
+        if (ob.parents("article").data("edited") || ob.data("edited")) {} else ob.text("");
 
         ob.focus().select();
     }
@@ -334,6 +374,7 @@ $(document).ready(function () { /* Vars */
     // Loads and draws the notes, key defined abow
     var load = function () {
         if (localStorage) {
+            setupMenu();
             data = localStorage.getItem(storeKey + flowID);
 
             if (data) {
@@ -398,7 +439,7 @@ $(document).ready(function () { /* Vars */
         position: "absolute"
     });
 
-    $("#top, #bottom").css({
+    $("#top, #bottom, .subnav").css({
         boxShadow: "0 1px 0 rgba(255,255,255,.2), 0 0 1em rgba(0,0,0,.3) inset",
         borderRadius: "4px"
     });
@@ -447,6 +488,10 @@ $(document).ready(function () { /* Vars */
         save();
     });
 
+    $("article.note, article.img").live("hover", function() {
+        $(this).toggleClass("hovering");    
+    });
+    
     $(".del").live("click", function () {
         if (!$(this).parents("article").data("edited")) {
             $(this).parents("article").remove();
@@ -502,17 +547,6 @@ $(document).ready(function () { /* Vars */
     document.addEventListener("drop", droped, true);
     $(document).bind('dragenter', listen).bind('dragover', listen).bind('dragleave', listen);
 
-
-    // Sets some css and animation lazy
-    //	$(".del").css({ borderRadius: "28px" });
-    //	$("#tools .tab span").css({ transform: "rotate(-90deg)", borderRadius: "4px" });
-    //	$("#tools").animate({ duration: 1500, left: "-12.5%" });
-    //	$("body").css({ boxShadow: "0 0 10em rgba(0,0,0,.5) inset" });
-    /* UI stuff */
-    //	$("#tools .tab").toggle(
-    //	    function(){ $("#tools").animate({duration: 300,  left: "-1px"   }); },    
-    //	    function(){ $("#tools").animate({duration: 1500, left: "-12.5%" }); }
-    //	);
     /* Load saved data*/
     load();
 });

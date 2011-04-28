@@ -1,5 +1,5 @@
 	#dashit {
-		position: fixed;
+		position: absolute;
 		top: 1.25%;
 		right: .7%;
 		border: none;
@@ -63,7 +63,7 @@
     padding: .5em;
     display: inline-block;
     cursor: pointer;
-    position: absolute;
+    position: fixed;
 	}
 	
 	article.note:first-child {
@@ -89,6 +89,11 @@
 		outline:none;
 	}
 	
+    article.img:hover {
+        box-sizing:border-box;
+        border: 1px solid rgba(255,0,0,.3);
+    }
+    
 	aside {
     position: fixed;
     border: 1px solid #ddd;
@@ -159,8 +164,13 @@
 		font-size: 20px;
 		cursor: pointer;
 		text-shadow: 0 1px 0 rgba(255, 255, 255, .2);
+        opacity: 0;
 	}
-	
+
+    .hovering .del {
+        opacity: 1;
+    }
+    
 	.ribbon {
 	  background-color: #fff;
 	  overflow: hidden;
@@ -169,6 +179,7 @@
 	  right: -3em;
 	  top: 2.5em;
 	}
+    
 	.ribbon a {
 	  border: 1px solid #ddd;
 	  color: #333;
@@ -181,3 +192,66 @@
 	  /* shadow */
 	  text-shadow: 0 0 0.5em rgba(0,0,0,.5);
 	}	
+    
+    ul.walls {
+    position: absolute;
+    left: 5%;
+    top: 1em;
+    list-style: none;
+	padding: 0 20px;
+	margin: 0;
+	float: left;
+	font-size: 80%;
+    }
+    ul.walls li {
+    	float: left;
+    	margin: 0;
+    	padding: 0 15px 0 0;
+    	position: relative; /*--Declare X and Y axis base for sub navigation--*/
+    }
+    ul.walls li a{
+    	padding: 10px 5px;
+    	color: #fff;
+    	display: block;
+    	text-decoration: none;
+    	float: left;
+    }
+    ul.walls li a:hover{
+    	background: transparent;
+    }
+    ul.walls li span { /*--Drop down trigger styles--*/
+    	width: 17px;
+    	height: 35px;
+    	float: left;
+    	background: url(data:image/gif;base64,R0lGODlhDQBGANU6ACUlJQgICCcnJ5HFOovBRDAwMAQEBCkpKS4uLkBAQCgoKCsuJgYGBjIyMnamQCEhIS81KZXEL5TDLi8vLzk5ORkZGS0tLT4+Pg4UCHmoOxYWFnqrRSsrKwsOA2yWNXGZLXSePQkMA3mhNRMTEx0dHQ4ODi0xJk9fJX6tQCYmJjdHDX+0RpnJL4G2SI/COQQFARwnDjlEK5bCIyQkJCgpJY/COpjEJRcXFyoqKgAAACUlJQAAAAAAAAAAAAAAAAAAACH5BAEAADoALAAAAAANAEYAAAbOQJ1wSCwaj8ikcslsOp/QqNTZ2kB0kE3LCCKgYigCyLgQDWoD0eJoirAipuTJdlrSpvi8fs/v+/+AgYEADyUBh4clDwBCAAY5kJE5BjMAKRWSmRUpBxqZkhoHODefkTc4o6WQp6mqrKQrDhg5GA4rOa85HgQZMBkEHriopCEfAy4DHyHCrR0SLBIdq8ORKjIqptSRL5K5rtqlrCSqOSQ4BwWPnwYFBwITDSMMkQwjDRMCAAoFFBcJ/xcoFFDACIAADhYQKLTAIZ+ghxCZBAEAOw==) no-repeat center top;
+    }
+    ul.walls li span.subhover {background-position: center bottom; cursor: pointer;} /*--Hover effect for trigger--*/
+    ul.walls li ul.subnav {
+    	list-style: none;
+    	position: absolute; /*--Important - Keeps subnav from affecting main navigation flow--*/
+    	left: 0; top: 35px;
+    	background: #333;
+    	margin: 0; padding: 0;
+    	display: none;
+    	float: left;
+    	width: 170px;
+    	border: 1px solid #111;
+    }
+    ul.walls li ul.subnav li{
+    	margin: 0; padding: 0;
+    	border-top: 1px solid #252525; /*--Create bevel effect--*/
+    	border-bottom: 1px solid #444; /*--Create bevel effect--*/
+    	clear: both;
+    	width: 170px;
+    }
+    ul.walls li ul.subnav li a {
+    	float: left;
+    	padding: 5px 13px;
+    }
+    ul.walls li ul.subnav li a.deleteWall {
+        font-style: normal;
+        color: rgba(255,0,0,.7);
+        float: right;
+    }
+    
+    
