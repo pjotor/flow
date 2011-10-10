@@ -36,42 +36,58 @@
     /* Drag & Drop functionality */
     var droped = function (e) {
         e.preventDefault();
-        var files = e.dataTransfer.files;
-        for (var i in files) {
-            // Check that it's a image and not more than 500k
-            if (typeof files[i] == "object" && files[i].type.indexOf("image") > -1 && files[i].size < (1024 * 500)) {
-                reader = new FileReader();
-                reader.index = i;
-                reader.file = files[i];
-                reader.onload = function (evt) {
-                    var tempImg = new Image();
-                    tempImg.onload = function () {
-                        var img = addImage("url(" + this.src + ")", e);
+        e.dataTransfer.dropEffect = 'copy';        
+
+        switch( true ) {
+            case e.dataTransfer.types.indexOf("url") != -1:
+                console.log( e.dataTransfer.getData('url') );
+                addImage("url(" + e.dataTransfer.getData("url") + ")", e);
+            break;
+            case e.dataTransfer.types.indexOf("Files") != -1:
+                var files = e.dataTransfer.files;
+                for (var i in files) {
+                    // Check that it's a image and not more than 500k
+                    if (typeof files[i] == "object" && files[i].type.indexOf("image") > -1 && files[i].size < (1024 * 500)) {
+                        reader = new FileReader();
+                        reader.index = i;
+                        reader.file = files[i];
+                        reader.onload = function (evt) {
+                            var tempImg = new Image();
+                            tempImg.onload = function () {
+                                addImage("url(" + this.src + ")", e);
+                            }
+                            tempImg.src = evt.target.result;
+                        }
+                        reader.readAsDataURL(files[i]);
                     }
-                    tempImg.src = evt.target.result;
-                }
-                reader.readAsDataURL(files[i]);
-            }
+                }                
+            break;
+            default:
+                addImage("url(" + e.dataTransfer.getData('Text') + ")", e);
         }
+        return false;
     }
 
     // Prevent bubbeling and default behavior (loading the image in the browser)
-    var listen = function (e) {
-        e.preventDefault();
-        return false;
+    var cancel = function (e) {
+      if (e.preventDefault) e.preventDefault(); // required by FF + Safari
+//      e.dataTransfer.dropEffect = 'copy'; // tells the browser what drop effect is allowed here
+      return false; // required by IE
     }
 
     //Add the event listner to the document
     document.addEventListener("drop", droped, true);
-    $(document).bind('dragenter', listen).bind('dragover', listen).bind('dragleave', listen);
+    $(document).bind('dragenter', cancel).bind('dragover', cancel).bind('dragleave', cancel);
     
     var addImage = function (data, ev) {
-        return $(ev.target).css({
-            backgroundImage: data,
-            backgroundSize: "cover",
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "left top"            
-        });     
+        if (data) {
+            return $(ev.target).css({
+                backgroundImage: data,
+                backgroundSize: "cover",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "left top"            
+            });
+        }
     }    
 
   });
