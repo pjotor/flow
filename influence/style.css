@@ -31,6 +31,7 @@
 		letter-spacing: .1em;
 		padding-left: 5px;
 		margin: .5em 0 0;
+        min-width: 1em;
 	}	
 	
 	#map {

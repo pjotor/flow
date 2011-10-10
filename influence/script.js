@@ -3,7 +3,7 @@
     var items = [1,2,2,1,7];
     var types = ["sq3x3","sq2x2","sq2x1","sq1x2","sq1x1"];
     var col = function(){ 
-		return '#'+('00'+(Math.random()*4096<<0).toString(16)).substr(-3);
+    	return '#'+('00'+(Math.random()*4096<<0).toString(16)).substr(-3);
 	}
  
 	var n;
@@ -40,14 +40,7 @@
 
         switch( true ) {
             case e.dataTransfer.types.indexOf("url") != -1:
-                var source = $( e.dataTransfer.getData("text/html") ).filter("img").attr("src");
-
-                if( source == null ) {
-                    source = e.dataTransfer.getData("url");
-                }
-
-                console.log( source );
-
+                var source = $( e.dataTransfer.getData("text/html") ).filter("img").attr("src") || e.dataTransfer.getData("url");
                 addImage("url(" + source + ")", e);
             break;
             case e.dataTransfer.types.indexOf("Files") != -1:
@@ -86,7 +79,8 @@
     $(document).bind('dragenter', cancel).bind('dragover', cancel).bind('dragleave', cancel);
     
     var addImage = function (data, ev) {
-        if (data) { $(ev.target).css({ backgroundImage: data }); }
+        if (data && $(ev.target).parent().prop("id") === "map" )
+            $(ev.target).css({ backgroundImage: data });
     }    
 
   });
