@@ -166,7 +166,7 @@ String.prototype.LZW = function () {
         $("#map > li").each(function () {
             data[data.length] = {
                 src: $(this).css("backgroundImage"),
-                type: $(this).prop("class").replace(/ /g, "."), 
+                type: $(this).prop("class"), 
                 meta: null
             }
         });
@@ -193,7 +193,7 @@ String.prototype.LZW = function () {
             window.location.hash = "#!" + influenceID
         }
     }    
-    
+
     var load = function (id) {
         if (localStorage) {
             data = localStorage.getItem(storeKey + id);
@@ -209,7 +209,7 @@ String.prototype.LZW = function () {
                     img = $("<li/>").addClass(image.type);
                     img.css({ backgroundImage: image.src })
 	                   .data("meta", image.meta);	                
-	                $("." + image.type).replaceWith(img);
+	                $("." + image.type.replace(/ /g, ".")).replaceWith(img);
                 }
                 influenceID = id;
 				$('#map').masonry( 'reload' );
