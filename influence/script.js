@@ -1,3 +1,65 @@
+/* Helpers */
+// Pattern replacer
+String.prototype.prep = function (d) {
+    var s = this;
+    for (var i in d) {
+        s = s.replace(RegExp('{'+i+'}','gi'), function ($1) {
+            return d[$1.substr(1, $1.length - 2)];
+        });
+    }
+    return s;
+}
+// LZW string compressor
+String.prototype.lzw = function () {
+    var dict = {};
+    var data = (this + "").split("");
+    var out = [];
+    var currChar;
+    var phrase = data[0];
+    var code = 256;
+    for (var i = 1; i < data.length; i++) {
+        currChar = data[i];
+        if (dict[phrase + currChar] != null) {
+            phrase += currChar;
+        } else {
+            out.push(phrase.length > 1 ? dict[phrase] : phrase.charCodeAt(0));
+            dict[phrase + currChar] = code;
+            code++;
+            phrase = currChar;
+        }
+    }
+    out.push(phrase.length > 1 ? dict[phrase] : phrase.charCodeAt(0));
+    for (var i = 0; i < out.length; i++) {
+        out[i] = String.fromCharCode(out[i]);
+    }
+    return out.join("");
+}
+// LZW string inflator
+String.prototype.LZW = function () {
+    var dict = {};
+    var data = (this + "").split("");
+    var currChar = data[0];
+    var oldPhrase = currChar;
+    var out = [currChar];
+    var code = 256;
+    var phrase;
+    for (var i = 1; i < data.length; i++) {
+        var currCode = data[i].charCodeAt(0);
+        if (currCode < 256) {
+            phrase = data[i];
+        } else {
+            phrase = dict[currCode] ? dict[currCode] : (oldPhrase + currChar);
+        }
+        out.push(phrase);
+        currChar = phrase.charAt(0);
+        dict[code] = oldPhrase + currChar;
+        code++;
+        oldPhrase = phrase;
+    }
+    return out.join("");
+}
+
+
   $(function(){
     
     var items = [1,2,2,1,7];
@@ -11,7 +73,7 @@
 		for(n=0; n<v; n++) {
 			$('#map').append(
 				$("<li/>")
-					.addClass(types[i])
+					.addClass(types[i] + " item_" + n)
 			);
 		}
 	});			
@@ -28,7 +90,7 @@
 			stop: function(){
 				$('#map')
 					.masonry( 'reload' );
- 
+				save();
 			}
 		})
 		.disableSelection();
@@ -37,19 +99,10 @@
     var droped = function (e) {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'copy';     
-/*
-dev_E = e.dataTransfer;      
-      
-console.log(($.inArray("url", e.dataTransfer.types) != -1) || ($.inArray("text/html", e.dataTransfer.types) != -1))      
-      
-console.log($( e.dataTransfer.getData("text/html") ).find("img").attr("src") || $( e.dataTransfer.getData("text/html") ).attr("src") || e.dataTransfer.getData("url"));
-
-console.log( e.dataTransfer )
-*/
       
         switch( true ) {        	
             case ($.inArray("url", e.dataTransfer.types) != -1) || ($.inArray("text/html", e.dataTransfer.types) != -1):
-                var source = $( e.dataTransfer.getData("text/html") ).find("img").attr("src") || $( e.dataTransfer.getData("text/html") ).attr("src") || e.dataTransfer.getData("url");
+                var source = $( e.dataTransfer.getData("text/html") ).filter("img").attr("src") || $( e.dataTransfer.getData("text/html") ).find("img").attr("src") || $( e.dataTransfer.getData("text/html") ).attr("src") || e.dataTransfer.getData("url");
                 addImage("url(" + source + ")", e);
             break;
             case $.inArray("Files", e.dataTransfer.types) != -1:
@@ -88,8 +141,81 @@ console.log( e.dataTransfer )
     $(document).bind('dragenter', cancel).bind('dragover', cancel).bind('dragleave', cancel);
     
     var addImage = function (data, ev) {
-        if (data && $(ev.target).parent().prop("id") === "map" )
+        if (data && $(ev.target).parent().prop("id") === "map" ) {
             $(ev.target).css({ backgroundImage: data });
+            save();
+        }
     }    
 
+
+    // Generate flow ID
+    var newID = function () {
+        var id = Math.floor((Math.random() * 1e5)).toString(16);
+        while (localStorage.getItem(storeKey + id) != null)
+        id = Math.floor((Math.random() * 1e5)).toString(16);
+        return id;
+    }
+    
+    var storeKey = "influenceMap::";
+    var hasID = (document.location.hash.substr(2).length != 0);
+    var influenceID = (hasID) ? document.location.hash.substr(2) : newID();
+    
+	// Returns an Array with the images on the wall ()
+    var collectImages = function () {
+        var data = [];
+        $("#map > li").each(function () {
+            data[data.length] = {
+                src: $(this).css("backgroundImage"),
+                type: $(this).prop("class").replace(/ /g, "."), 
+                meta: null
+            }
+        });
+        return data;
+    }    
+    
+    // Saves the object (stringified) to local store, key define abow
+    var save = function () {
+        if (localStorage) {
+            var images = collectImages();
+            var imageNames = [];
+            for (var i in images) {
+                localStorage.setItem(
+                	storeKey + influenceID + ":image:" + images[i].type, 
+                	JSON.stringify(images[i]).lzw()
+                );
+                imageNames[imageNames.length] = images[i].type;
+            }
+
+            localStorage.setItem(storeKey + influenceID, JSON.stringify({
+                title: $("h2 > span:first").text(),
+                images: imageNames
+            }).lzw());
+            window.location.hash = "#!" + influenceID
+        }
+    }    
+    
+    var load = function (id) {
+        if (localStorage) {
+            data = localStorage.getItem(storeKey + id);
+
+            if (data) {
+                data = JSON.parse(data.LZW());
+                if (data.title) $("h2 > span:first").text(data.title);
+                var i, img;
+
+                var images = data.images;
+                for (i in images) {
+                    image = JSON.parse(localStorage.getItem(storeKey + id + ":image:" + images[i]).LZW());
+                    img = $("<li/>").addClass(image.type);
+                    img.css({ backgroundImage: image.src })
+	                   .data("meta", image.meta);	                
+	                $("." + image.type).replaceWith(img);
+                }
+                influenceID = id;
+				$('#map').masonry( 'reload' );
+            }
+        } else alert("Local storage support missing.");
+    }
+
+	if(hasID) load(influenceID);
   });
