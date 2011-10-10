@@ -3,7 +3,7 @@
     var items = [1,2,2,1,7];
     var types = ["sq3x3","sq2x2","sq2x1","sq1x2","sq1x1"];
     var col = function(){ 
-    	return '#'+('00'+(Math.random()*4096<<0).toString(16)).substr(-3);
+        return '#'+('00'+(Math.random()*4096<<0).toString(16)).substr(-3);
 	}
  
 	var n;
@@ -36,14 +36,15 @@
     /* Drag & Drop functionality */
     var droped = function (e) {
         e.preventDefault();
-        e.dataTransfer.dropEffect = 'copy';        
-
-        switch( true ) {
-            case e.dataTransfer.types.indexOf("url") != -1:
-                var source = $( e.dataTransfer.getData("text/html") ).filter("img").attr("src") || e.dataTransfer.getData("url");
+        e.dataTransfer.dropEffect = 'copy';     
+      
+        switch( true ) {        	
+            case ($.inArray("url", e.dataTransfer.types) != -1) || ($.inArray("text/html", e.dataTransfer.types) != -1):
+                var source = $( e.dataTransfer.getData("text/html") ).find("img").attr("src") || e.dataTransfer.getData("url");
                 addImage("url(" + source + ")", e);
+
             break;
-            case e.dataTransfer.types.indexOf("Files") != -1:
+            case $.inArray("Files", e.dataTransfer.types) != -1:
                 var files = e.dataTransfer.files;
                 for (var i in files) {
                     // Check that it's a image and not more than 500k
