@@ -2,7 +2,7 @@
     
     var items = [1,2,2,1,7];
     var types = ["sq3x3","sq2x2","sq2x1","sq1x2","sq1x1"];
-	var col = function(){ 
+    var col = function(){ 
 		return '#'+('00'+(Math.random()*4096<<0).toString(16)).substr(-3);
 	}
  
@@ -40,7 +40,6 @@
 
         switch( true ) {
             case e.dataTransfer.types.indexOf("url") != -1:
-                console.log( e.dataTransfer.getData('url') );
                 addImage("url(" + e.dataTransfer.getData("url") + ")", e);
             break;
             case e.dataTransfer.types.indexOf("Files") != -1:
@@ -71,7 +70,6 @@
     // Prevent bubbeling and default behavior (loading the image in the browser)
     var cancel = function (e) {
       if (e.preventDefault) e.preventDefault(); // required by FF + Safari
-//      e.dataTransfer.dropEffect = 'copy'; // tells the browser what drop effect is allowed here
       return false; // required by IE
     }
 
