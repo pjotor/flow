@@ -40,7 +40,15 @@
 
         switch( true ) {
             case e.dataTransfer.types.indexOf("url") != -1:
-                addImage("url(" + e.dataTransfer.getData("url") + ")", e);
+                var source = $( e.dataTransfer.getData("text/html") ).filter("img").attr("src");
+
+                if( source == null ) {
+                    source = e.dataTransfer.getData("url");
+                }
+
+                console.log( source );
+
+                addImage("url(" + source + ")", e);
             break;
             case e.dataTransfer.types.indexOf("Files") != -1:
                 var files = e.dataTransfer.files;
@@ -78,14 +86,7 @@
     $(document).bind('dragenter', cancel).bind('dragover', cancel).bind('dragleave', cancel);
     
     var addImage = function (data, ev) {
-        if (data) {
-            return $(ev.target).css({
-                backgroundImage: data,
-                backgroundSize: "cover",
-                backgroundRepeat: "no-repeat",
-                backgroundPosition: "left top"            
-            });
-        }
+        if (data) { $(ev.target).css({ backgroundImage: data }); }
     }    
 
   });

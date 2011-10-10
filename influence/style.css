@@ -43,7 +43,10 @@
 		background: #fff;
 		display: block;
 		float: left;
-		margin: 5px;		
+		margin: 5px;
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: left top;          
 	}
 	
 	#map .sq3x3 { 
