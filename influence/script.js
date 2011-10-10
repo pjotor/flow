@@ -37,12 +37,20 @@
     var droped = function (e) {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'copy';     
+/*
+dev_E = e.dataTransfer;      
+      
+console.log(($.inArray("url", e.dataTransfer.types) != -1) || ($.inArray("text/html", e.dataTransfer.types) != -1))      
+      
+console.log($( e.dataTransfer.getData("text/html") ).find("img").attr("src") || $( e.dataTransfer.getData("text/html") ).attr("src") || e.dataTransfer.getData("url"));
+
+console.log( e.dataTransfer )
+*/
       
         switch( true ) {        	
             case ($.inArray("url", e.dataTransfer.types) != -1) || ($.inArray("text/html", e.dataTransfer.types) != -1):
-                var source = $( e.dataTransfer.getData("text/html") ).find("img").attr("src") || e.dataTransfer.getData("url");
+                var source = $( e.dataTransfer.getData("text/html") ).find("img").attr("src") || $( e.dataTransfer.getData("text/html") ).attr("src") || e.dataTransfer.getData("url");
                 addImage("url(" + source + ")", e);
-
             break;
             case $.inArray("Files", e.dataTransfer.types) != -1:
                 var files = e.dataTransfer.files;
