@@ -161,7 +161,7 @@ String.prototype.LZW = function () {
     
     var storeKey = "influenceMap::";
     var hasID = (document.location.hash.substr(2).length != 0);
-    var influenceID = (hasID) ? document.location.hash.substr(2) : newID();
+    var influenceID = ""; //(hasID) ? document.location.hash.substr(2) : newID();
     
 	// Returns an Array with the images on the wall ()
     var collectImages = function () {
@@ -184,7 +184,7 @@ String.prototype.LZW = function () {
                 title: $("h2 > span:first").text(),
                 images: images
             }).lzw());
-            window.location.hash = "#!" + influenceID;
+//            window.location.hash = "#!" + influenceID;
             return localStorage.getItem(storeKey + influenceID);
         }
         return "No localStore support detected.";
@@ -205,7 +205,7 @@ String.prototype.LZW = function () {
 	                $("." + images[i].type.replace(/ /g, ".")).replaceWith(img);
                 }
                 influenceID = idData.length < 7 ? idData : newID();
-				$('#map').masonry( 'reload' );
+				//$('#map').masonry( 'reload' );
             }
         } else alert( "Local storage support missing." );
     }
@@ -230,5 +230,6 @@ String.prototype.LZW = function () {
 
     $("#tab").click(function(){ $("#saveLoad").dialog("open"); })
 
-	if(hasID) load(influenceID);
+	//if(hasID) 
+    load(influenceID);
   });
