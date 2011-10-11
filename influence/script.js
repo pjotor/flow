@@ -106,6 +106,8 @@ String.prototype.LZW = function () {
                 addImage("url(" + source + ")", e);
             break;
             case $.inArray("Files", e.dataTransfer.types) != -1:
+                alert("For the time being the map only saves URI data, in the future we might activate file drag and drop.");
+/*                
                 var files = e.dataTransfer.files;
                 for (var i in files) {
                     // Check that it's a image and not more than 500k
@@ -122,7 +124,8 @@ String.prototype.LZW = function () {
                         }
                         reader.readAsDataURL(files[i]);
                     }
-                }                
+                }      
+*/                
             break;
             default:
                 addImage("url(" + e.dataTransfer.getData('Text') + ")", e);
@@ -167,7 +170,7 @@ String.prototype.LZW = function () {
             data[data.length] = {
                 src: $(this).css("backgroundImage"),
                 type: $(this).prop("class"), 
-                meta: null
+                data: $(this).data("meta")
             }
         });
         return data;
@@ -177,45 +180,55 @@ String.prototype.LZW = function () {
     var save = function () {
         if (localStorage) {
             var images = collectImages();
-            var imageNames = [];
-            for (var i in images) {
-                localStorage.setItem(
-                	storeKey + influenceID + ":image:" + images[i].type, 
-                	JSON.stringify(images[i]).lzw()
-                );
-                imageNames[imageNames.length] = images[i].type;
-            }
-
             localStorage.setItem(storeKey + influenceID, JSON.stringify({
                 title: $("h2 > span:first").text(),
-                images: imageNames
+                images: images
             }).lzw());
-            window.location.hash = "#!" + influenceID
+            window.location.hash = "#!" + influenceID;
+            return localStorage.getItem(storeKey + influenceID);
         }
+        return "No localStore support detected.";
     }    
 
-    var load = function (id) {
+    var load = function (idData) {
         if (localStorage) {
-            data = localStorage.getItem(storeKey + id);
-
+            var data = idData.length > 6 ? idData : localStorage.getItem(storeKey + idData);
             if (data) {
                 data = JSON.parse(data.LZW());
                 if (data.title) $("h2 > span:first").text(data.title);
                 var i, img;
-
                 var images = data.images;
                 for (i in images) {
-                    image = JSON.parse(localStorage.getItem(storeKey + id + ":image:" + images[i]).LZW());
-                    img = $("<li/>").addClass(image.type);
-                    img.css({ backgroundImage: image.src })
-	                   .data("meta", image.meta);	                
-	                $("." + image.type.replace(/ /g, ".")).replaceWith(img);
+                    img = $("<li/>").addClass(images[i].type);
+                    img.css({ backgroundImage: images[i].src })
+	                   .data("meta", images[i].data);	                
+	                $("." + images[i].type.replace(/ /g, ".")).replaceWith(img);
                 }
-                influenceID = id;
+                influenceID = idData.length < 7 ? idData : newID();
 				$('#map').masonry( 'reload' );
             }
-        } else alert("Local storage support missing.");
+        } else alert( "Local storage support missing." );
     }
+
+    $("#saveLoad").dialog({ 
+        modal: true,
+        draggable: false,
+        width: 350,
+        resizable: false,
+        autoOpen: false,
+        open: function(event, ui) {
+            $(this).children("textarea").val(save()).select();
+        },
+        close: function(event, ui) {
+            load($(this).children("textarea").val());
+        }, 
+        buttons: [{
+                text: "Okididdleydoki, let's go!",
+                click: function() { $(this).dialog("close"); }
+        }]        
+    });    
+
+    $("#tab").click(function(){ $("#saveLoad").dialog("open"); })
 
 	if(hasID) load(influenceID);
   });

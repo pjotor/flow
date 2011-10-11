@@ -11,6 +11,7 @@
   <script type="text/javascript" src="script.js"></script>   
 </head> 
 <body> 
+
 	<div class="header"> 
 		<h2><span id="name" contenteditable="true">your name</span>'s</h3> 
 		<h1>Influence Map</h1> 
@@ -19,6 +20,8 @@
 	<ul id="map"> 
 	</ul> 
 	
+    <div id="tab"> save/load </div>
+    
 	<div class="clear"></div> 
 	
 	<span class="title rotate">What is this?</span> 
@@ -86,5 +89,13 @@
 			</p> 
 		</article> 
 	</footer> 
+    
+    <div id="saveLoad" title="save/load."> 
+		<h3 class="stroked">This is the data representation of your Influence Map.</h3>
+        <p>Copy this and share this with other users by email, social applications, 
+        notes, smoke signs or whatever. If you have a datablock, paste it here and 
+        the data will be translated to a new Influence Map.</p>
+		<textarea class="data"></textarea> 
+	</div>     
 </body> 
 </html> 
